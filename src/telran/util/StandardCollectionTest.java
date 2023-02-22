@@ -43,7 +43,7 @@ class StandardCollectionTest {
         .mapToObj(String::valueOf)
         .flatMap(e -> Arrays.stream(e.split("")))
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-        .forEach((k,v) -> System.out.printf("The digit %s displayed %d times between 1-Integer.MAX_VALUE%n", k, v));
+        .forEach((k,v) -> System.out.printf("The digit %s displayed %d times in the range from 1 to 2147483647 %n", k, v));
 	}
 
 }
