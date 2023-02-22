@@ -45,7 +45,7 @@ class StandardCollectionTest {
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
         .forEach((k,v) -> System.out.printf("The digit %s displayed %d times between 1-Integer.MAX_VALUE%n", k, v));
 	}
-	
+
 }
 	
 	
