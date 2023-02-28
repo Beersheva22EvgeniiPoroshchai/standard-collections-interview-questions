@@ -59,14 +59,14 @@ class StandardCollectionTest {
 	
 	@Test
 	void maxNumberWithNegativeImageTest() {
-		int ar[] = {10000000, 3, -2, -200, 200, -3, 2};
+		int ar[] = {10000000, 3, -2, 200, -200, -3, 2};
 		int ar1[] = {1000000, -1000000000, 3, -4};
 		assertEquals(200, maxNumberWithNegativeImage(ar));
 		assertEquals(-1, maxNumberWithNegativeImage(ar1));
 	}
 	
 	
-		int maxNumberWithNegativeImage(int[] array) {
+	int maxNumberWithNegativeImage(int[] array) {
 		HashSet<Integer> set = new HashSet<>();
 		int res = 0;
 		for (int i = 0; i < array.length; i++) {
@@ -76,31 +76,33 @@ class StandardCollectionTest {
 		}
 	}
 		return res == 0 ? -1 : res;
-}
+		}
 	
 		@Test
 		void treeIteratingTest() {
-		int array[] = {1, 11, 111, 32, 9, 1234, 99, 992};
+		Integer array[] = {1, 11, 111, 32, 9, 1234, 99, 992};
 		int exp[] = new int[array.length];
-		TreeSet<Integer> tree = createAndIterateTreeInOrder(array);  
-		Iterator<Integer> it = tree.iterator();
-		int i=0;
-		while (it.hasNext()) {
-			exp[i++]= it.next();
-		}
-		assertArrayEquals(array, exp);
-	}
+		createAndIterateTreeInOrder(array);  
 		
-		private TreeSet<Integer> createAndIterateTreeInOrder(int[] array) {
-		Comparator<Integer> comp = new CompareIterateInOrder<Integer>();
-		TreeSet<Integer> newTree = new TreeSet<>(comp);
-		for (int i = 0; i < array.length; i++) {
-			newTree.add(array[i]);
-		}
-		System.out.println(newTree);
-		return newTree;
-	}
 }
+		
+	
+		
+		private void createAndIterateTreeInOrder(Integer[] array) {
+		TreeSet<Integer> set = new TreeSet<>((num1, num2) -> 
+		Integer.compare(getSumDigits(num1), getSumDigits(num2)));
+		for(int num: array) {
+			set.add(num);
+		}
+		assertArrayEquals(array, set.toArray(new Integer[0]));
+}
+
+		private int getSumDigits(Integer num) {
+		return num.toString().chars().map(c -> c - '0').sum();
+		
+		}
+}
+
 	
 
 
