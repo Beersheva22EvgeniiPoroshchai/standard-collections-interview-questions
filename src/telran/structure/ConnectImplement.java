@@ -1,73 +1,100 @@
 package telran.structure;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-public class ConnectImplement implements ConnectionsPool {
-
-		private static final Integer NUMBER_OF_MAX_CONNNECTIONS = 5;
-		private LinkedHashMap <Integer, Connection> connections = new LinkedHashMap<>();
-		private Integer maxOfConnect;
-		private Integer lastConnect;
+public class ConnectImplement implements ConnectionsPool{
+	static class Node {
 		
-		public Integer getMaxOfConnect() {
-			return maxOfConnect;
-		}
-
-		public void setMaxOfConnect(Integer maxOfConnect) {
-			this.maxOfConnect = maxOfConnect;
-		}
-
-		public Integer getLastConnect() {
-			return lastConnect;
-		}
-
-		public void setLastConnect(Integer lastConnect) {
-			this.lastConnect = lastConnect;
-		}
+		Connection connection;
+		Node next;
+		Node prev;
+		Node(Connection connection) {
 		
-		public ConnectImplement(Integer maxOfConnect) {
-			super();
-			this.maxOfConnect = maxOfConnect;
+			this.connection = connection;
 		}
-		
-		public ConnectImplement() {
-			this(NUMBER_OF_MAX_CONNNECTIONS);
+	}
+	static class ListConnections {
+		Node head;
+		Node tail;
+		 void addHead(Node nodeConnection) {
+			nodeConnection.next = head;
+			if (head != null) {
+				head.prev = nodeConnection;
+			} else {
+				tail = nodeConnection;
+			}
+			head = nodeConnection;
+			
 		}
-		
+		void removeTail() {
+			tail = tail.prev;
+			if (tail != null) {
+				tail.next = null;
+			}
+			
+		}
+		public void removeNode(Node nodeConnection) {
+			if (nodeConnection == tail) {
+				removeTail();
+			} else {
+				Node before = nodeConnection.prev;
+				Node after = nodeConnection.next;
+				before.next = after;
+				after.prev = before;
+			}
+			
+		}
+	}
+	HashMap<Integer, Node> connectionsMap = new HashMap<>();
+	int connectionsPoolLimit;
+	ListConnections listConnections = new ListConnections();
+
+	public ConnectImplement(int connectionsPoolLimit) {
+		this.connectionsPoolLimit = connectionsPoolLimit;
+	}
 
 	@Override
 	public boolean addConnection(Connection connection) {
-		boolean res = false;
-		if (connections.containsKey(connection.getId()) == false) {
-			if (connections.isEmpty() == false) {
-				if (connections.size() == maxOfConnect) {
-					connections.remove(lastConnect);
-					changeOrder();
-			}
-			} else {
-					lastConnect = connection.getId();
-					}
-			connections.put(connection.getId(), connection);
-			res = true;
-		} 
-			return res;
+		if (connectionsMap.containsKey(connection.getId())) {
+			return false;
+		}
+		Node nodeConnection = new Node(connection);
+		addMapList(connection, nodeConnection);
+		if (connectionsMap.size() > connectionsPoolLimit) {
+			removeListTailMap();
+		}
+		
+		return true;
 	}
 
-	private void changeOrder() {
-		Set<Integer> set = connections.keySet();
-		Iterator<Integer> it = set.iterator();
-		lastConnect = it.next();
-		}
+	private void removeListTailMap() {
+		connectionsMap.remove(listConnections.tail.connection.getId());
+		listConnections.removeTail();
+	}
+
+	private void addMapList(Connection connection, Node nodeConnection) {
+		connectionsMap.put(connection.getId(), nodeConnection);
+		listConnections.addHead(nodeConnection);
+	}
 
 	@Override
 	public Connection getConnection(int id) {
-		Connection res = connections.get(id);
-			connections.remove(id);
-			addConnection(res);
-			changeOrder();
-			return res;
+		Node nodeConnection = connectionsMap.get(id);
+		if (nodeConnection == null) {
+			return null;
+		}
+		moveConnectionToHead(nodeConnection);
+		return nodeConnection.connection;
 	}
 
+	private void moveConnectionToHead(Node nodeConnection) {
+		if (nodeConnection != listConnections.head) {
+		listConnections.removeNode(nodeConnection);
+		listConnections.addHead(nodeConnection);
+		}
+		
+	}
 }
